@@ -1,0 +1,53 @@
+plugins {
+    id 'java'
+
+    id 'application'
+
+    // Apply GraalVM Native Image plugin
+    id 'org.graalvm.buildtools.native' version '0.9.23'
+}
+
+group 'gov.cdc.dataingestion'
+version '1.0-SNAPSHOT'
+
+application {
+    mainClass = 'gov.cdc.dataingestion.DataIngestionCLI'
+}
+
+repositories {
+    mavenCentral()
+}
+
+graalvmNative {
+    binaries.all {
+        resources.autodetect()
+    }
+    binaries.main {
+        imageName.set("nbs-di-cli")
+        debug = true
+        verbose = true
+        buildArgs.add("-H:+ReportExceptionStackTraces")
+        buildArgs.add("-H:+ReportUnsupportedElementsAtRuntime")
+        buildArgs.add("--initialize-at-build-time=java.lang.String")
+        buildArgs.add("--initialize-at-build-time=java.util.**")
+        buildArgs.add("-H:ReflectionConfigurationFiles=${projectDir}/src/main/resources/reflection-config.json")
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+
+    implementation 'info.picocli:picocli:4.7.4'
+    annotationProcessor 'info.picocli:picocli-codegen:4.7.4'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+}
+
+compileJava {
+    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+}
+
+test {
+    useJUnitPlatform()
+}

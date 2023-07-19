@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <option name="project" value="gov.cdc.dataingestion/NEDSS-DataIngestion-CLI" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/info.picocli/picocli-codegen/4.7.4/c6b2455e97f9bb08eb0b8067ab8b65f290de2186/picocli-codegen-4.7.4.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/info.picocli/picocli/4.7.4/6c036f65c4534c87c4b7f47ed659ee625bee79d4/picocli-4.7.4.jar" />
+        </processorPath>
+        <module name="NEDSS-DataIngestion-CLI.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="20" />
+  </component>
+</project>
