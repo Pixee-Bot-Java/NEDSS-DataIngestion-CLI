@@ -2,9 +2,11 @@ package gov.cdc.dataingestion.commands;
 
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
+import gov.cdc.dataingestion.util.PropUtil;
 import picocli.CommandLine;
 
 import java.io.Console;
+import java.util.Properties;
 
 @CommandLine.Command(name = "register", mixinStandardHelpOptions = true, description = "Client will be onboarded providing username and secret.")
 public class RegisterUser implements Runnable {
@@ -23,13 +25,15 @@ public class RegisterUser implements Runnable {
 
     AuthModel authModel = new AuthModel();
     AuthUtil authUtil = new AuthUtil();
+    PropUtil propUtil = new PropUtil();
 
 
     @Override
     public void run() {
         if(username != null && password != null && adminUser != null && adminPassword != null) {
             if(!username.isEmpty() && password.length > 0 && !adminUser.isEmpty() && adminPassword.length > 0) {
-                String serviceEndpoint = "https://dataingestion.datateam-cdc-nbs.eqsandbox.com/registration?username="
+                Properties properties = propUtil.loadPropertiesFile();
+                String serviceEndpoint = properties.getProperty("service.registrationEndpoint") + "?username="
                         + username + "&password=" + new String(password);
 
                 authModel.setAdminUser(adminUser);

@@ -1,5 +1,6 @@
 package gov.cdc.dataingestion;
 
+import gov.cdc.dataingestion.commands.InjectHL7;
 import gov.cdc.dataingestion.commands.RegisterUser;
 import gov.cdc.dataingestion.commands.TokenGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,7 @@ class DataIngestionCLITest {
 
     @Test
     void testMainExitCodeMissingArguments() {
-        String[] args = { "register", "--clientSecret=secret", "--adminPassword=password" };
+        String[] args = { "register", "--client-secret=secret", "--admin-password=password" };
 
         int exitCode = new CommandLine(new DataIngestionCLI()).execute(args);
 
@@ -58,5 +59,14 @@ class DataIngestionCLITest {
 
         assertNotNull(subCommand);
         assertEquals(TokenGenerator.class, subCommand.getCommand().getClass());
+    }
+
+    @Test
+    void testMainInjectHL7SubCommand() {
+        CommandLine cmd = new CommandLine(new DataIngestionCLI());
+        CommandLine subCommand = cmd.getSubcommands().get("injecthl7");
+
+        assertNotNull(subCommand);
+        assertEquals(InjectHL7.class, subCommand.getCommand().getClass());
     }
 }

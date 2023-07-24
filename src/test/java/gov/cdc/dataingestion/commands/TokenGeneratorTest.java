@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.commands;
 
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
+import gov.cdc.dataingestion.util.PropUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,9 +21,12 @@ class TokenGeneratorTest {
     private final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     private final ByteArrayOutputStream errStream = new ByteArrayOutputStream();
     @Mock
-    AuthUtil authUtilMock;
-
+    private AuthUtil authUtilMock;
+    @Mock
+    private PropUtil propUtilMock;
     private TokenGenerator tokenGenerator;
+    Properties mockProperties = mock(Properties.class);
+
 
     @BeforeEach
     void setUp() {
@@ -29,14 +34,16 @@ class TokenGeneratorTest {
         System.setOut(new PrintStream(outStream));
         System.setErr(new PrintStream(errStream));
         tokenGenerator = new TokenGenerator();
+        tokenGenerator.propUtil = propUtilMock;
         tokenGenerator.authUtil = authUtilMock;
         tokenGenerator.authModel = new AuthModel();
-        tokenGenerator.authModel.setServiceEndpoint("https://dataingestion.datateam-cdc-nbs.eqsandbox.com/token");
+        when(mockProperties.getProperty("service.tokenEndpoint")).thenReturn("testTokenEndpoint");
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(authUtilMock);
+        Mockito.reset(propUtilMock);
     }
 
     @Test
@@ -45,6 +52,7 @@ class TokenGeneratorTest {
         char[] adminPassword = "adminPassword".toCharArray();
         String apiResponse = "Dummy_Token";
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
 
         tokenGenerator.adminUser = adminUser;
@@ -61,6 +69,7 @@ class TokenGeneratorTest {
         char[] adminPassword = "notAdminPassword".toCharArray();
         String apiResponse = "Unauthorized. Admin username/password is incorrect.";
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
 
         tokenGenerator.adminUser = adminUser;

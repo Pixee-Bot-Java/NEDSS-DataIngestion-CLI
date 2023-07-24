@@ -16,6 +16,10 @@ application {
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://repo.clojars.org'
+        name 'Clojars'
+    }
 }
 
 graalvmNative {
@@ -45,7 +49,7 @@ dependencies {
 }
 
 compileJava {
-    options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
+    options.compilerArgs += ["-Aproject=${project.group}/${project.name}","-Aother.resource.patterns=.*"]
 }
 
 test {

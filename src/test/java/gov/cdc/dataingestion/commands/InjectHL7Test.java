@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.commands;
 
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
+import gov.cdc.dataingestion.util.PropUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.io.*;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,7 +24,11 @@ class InjectHL7Test {
     private final ByteArrayOutputStream errStream = new ByteArrayOutputStream();
     @Mock
     private AuthUtil authUtilMock;
+    @Mock
+    private PropUtil propUtilMock;
     private InjectHL7 injectHL7;
+    Properties mockProperties = mock(Properties.class);
+
 
     private String hl7FilePath = "path/to/hl7-input.hl7";
 
@@ -33,13 +39,15 @@ class InjectHL7Test {
         System.setErr(new PrintStream(errStream));
         injectHL7 = new InjectHL7();
         injectHL7.authUtil = authUtilMock;
+        injectHL7.propUtil = propUtilMock;
         injectHL7.authModel = new AuthModel();
-        injectHL7.authModel.setServiceEndpoint("https://dataingestion.datateam-cdc-nbs.eqsandbox.com/api/reports");
+        when(mockProperties.getProperty("service.reportsEndpoint")).thenReturn("testReportsEndpoint");
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(authUtilMock);
+        Mockito.reset(propUtilMock);
     }
 
     @Test
@@ -48,6 +56,7 @@ class InjectHL7Test {
         char[] adminPassword = "adminPassword".toCharArray();
         String apiResponse = "Dummy_UUID";
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
         File tempHL7File = getFile();
 
@@ -63,11 +72,6 @@ class InjectHL7Test {
         String expectedOutput = "Dummy_UUID";
         assertEquals("adminUser", authModelCaptor.getValue().getAdminUser());
         assertArrayEquals("adminPassword".toCharArray(), authModelCaptor.getValue().getAdminPassword());
-//        assertEquals("MSH|^~\\&|SIMHOSP|SFAC|RAPP|RFAC|20200508130643||ADT^A01|5|T|2.3|||AL||44|ASCII\n" +
-//                "EVN|A01|20200508130643|||C006^Wolf^Kathy^^^Dr^^^DRNBR^PRSNL^^^ORGDR|\n" +
-//                "PID|1|2590157853^^^SIMULATOR MRN^MRN|2590157853^^^SIMULATOR MRN^MRN~2478684691^^^NHSNBR^NHSNMBR||Esterkin^AKI Scenario 6^^^Miss^^CURRENT||19890118000000|F|||170 Juice Place^^London^^RW21 6KC^GBR^HOME||020 5368 1665^HOME|||||||||R^Other - Chinese^^^||||||||\n" +
-//                "PD1|||FAMILY PRACTICE^^12345|\n" +
-//                "PV1|1|I|RenalWard^MainRoom^Bed 1^Simulated Hospital^^BED^Main Building^5|28b|||C006^Wolf^Kathy^^^Dr^^^DRNBR^PRSNL^^^ORGDR|||MED|||||||||6145914547062969032^^^^visitid||||||||||||||||||||||ARRIVED|||20200508130643||", authModelCaptor.getValue().getRequestBody());
         assertEquals(expectedOutput, outStream.toString().trim());
 
         assertTrue(tempHL7File.delete());
@@ -91,6 +95,7 @@ class InjectHL7Test {
         char[] adminPassword = "notAdminPassword".toCharArray();
         String apiResponse = "Unauthorized. Admin username/password is incorrect.";
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
         File tempHL7File = getFile();
 

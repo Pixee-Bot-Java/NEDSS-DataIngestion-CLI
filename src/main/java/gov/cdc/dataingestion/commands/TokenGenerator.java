@@ -2,7 +2,10 @@ package gov.cdc.dataingestion.commands;
 
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
+import gov.cdc.dataingestion.util.PropUtil;
 import picocli.CommandLine;
+
+import java.util.Properties;
 
 @CommandLine.Command(name = "token", mixinStandardHelpOptions = true, description = "Generates a JWT token.")
 public class TokenGenerator implements Runnable {
@@ -15,16 +18,17 @@ public class TokenGenerator implements Runnable {
 
     AuthModel authModel = new AuthModel();
     AuthUtil authUtil = new AuthUtil();
+    PropUtil propUtil = new PropUtil();
 
     @Override
     public void run() {
         if(adminUser != null && adminPassword != null) {
             if(!adminUser.isEmpty() && adminPassword.length > 0) {
-                String serviceEndpoint = "https://dataingestion.datateam-cdc-nbs.eqsandbox.com/token";
+                Properties properties = propUtil.loadPropertiesFile();
 
                 authModel.setAdminUser(adminUser);
                 authModel.setAdminPassword(adminPassword);
-                authModel.setServiceEndpoint(serviceEndpoint);
+                authModel.setServiceEndpoint(properties.getProperty("service.tokenEndpoint"));
 
                 String apiResponse = authUtil.getResponseFromDIService(authModel);
                 System.out.println(apiResponse);

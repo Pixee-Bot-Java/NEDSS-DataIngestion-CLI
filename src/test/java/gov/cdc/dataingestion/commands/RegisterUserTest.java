@@ -2,6 +2,7 @@ package gov.cdc.dataingestion.commands;
 
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
+import gov.cdc.dataingestion.util.PropUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.io.*;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -21,10 +23,10 @@ class RegisterUserTest {
     private final ByteArrayOutputStream errStream = new ByteArrayOutputStream();
     @Mock
     private AuthUtil authUtilMock;
+    @Mock
+    private PropUtil propUtilMock;
     private RegisterUser registerUser;
-    // private String serviceEndpoint = "";
-
-
+    Properties mockProperties = mock(Properties.class);
 
     @BeforeEach
     void setUp() {
@@ -33,13 +35,15 @@ class RegisterUserTest {
         System.setErr(new PrintStream(errStream));
         registerUser = new RegisterUser();
         registerUser.authUtil = authUtilMock;
+        registerUser.propUtil = propUtilMock;
         registerUser.authModel = new AuthModel();
-        registerUser.authModel.setServiceEndpoint("https://dataingestion.datateam-cdc-nbs.eqsandbox.com/registration?username=testUser&password=testPassword");
+        when(mockProperties.getProperty("service.registrationEndpoint")).thenReturn("testRegistrationEndpoint");
     }
 
     @AfterEach
     void tearDown() {
         Mockito.reset(authUtilMock);
+        Mockito.reset(propUtilMock);
     }
 
     @Test
@@ -49,6 +53,7 @@ class RegisterUserTest {
         registerUser.adminUser = "adminUser";
         registerUser.adminPassword = "adminPassword".toCharArray();
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("CREATED");
 
         registerUser.run();
@@ -69,6 +74,7 @@ class RegisterUserTest {
         registerUser.adminUser = "adminUser";
         registerUser.adminPassword = "adminPassword".toCharArray();
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("NOT_ACCEPTABLE");
 
         registerUser.run();
@@ -89,6 +95,7 @@ class RegisterUserTest {
         registerUser.adminUser = "notAdminUser";
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("Unauthorized. Admin username/password is incorrect.");
 
         registerUser.run();
@@ -109,6 +116,7 @@ class RegisterUserTest {
         registerUser.adminUser = "notAdminUser";
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(null);
 
         registerUser.run();
@@ -129,6 +137,7 @@ class RegisterUserTest {
         registerUser.adminUser = "notAdminUser";
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
+        when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
         when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenThrow(new RuntimeException("An exception occurred."));
 
         assertThrows(RuntimeException.class, registerUser::run);
