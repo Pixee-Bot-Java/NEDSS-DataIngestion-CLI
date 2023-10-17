@@ -57,7 +57,7 @@ class InjectHL7Test {
         String apiResponse = "Dummy_UUID";
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), anyString())).thenReturn(apiResponse);
         File tempHL7File = getFile();
 
         injectHL7.hl7FilePath = tempHL7File.getAbsolutePath();
@@ -67,7 +67,7 @@ class InjectHL7Test {
         injectHL7.run();
 
         ArgumentCaptor<AuthModel> authModelCaptor = ArgumentCaptor.forClass(AuthModel.class);
-        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture());
+        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture(), anyString());
 
         String expectedOutput = "Dummy_UUID";
         assertEquals("adminUser", authModelCaptor.getValue().getAdminUser());
@@ -96,7 +96,7 @@ class InjectHL7Test {
         String apiResponse = "Unauthorized. Admin username/password is incorrect.";
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(apiResponse);
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("injecthl7"))).thenReturn(apiResponse);
         File tempHL7File = getFile();
 
         injectHL7.adminUser = adminUser;
@@ -104,7 +104,7 @@ class InjectHL7Test {
         injectHL7.hl7FilePath = tempHL7File.getAbsolutePath();
         injectHL7.run();
 
-        verify(authUtilMock).getResponseFromDIService(injectHL7.authModel);
+        verify(authUtilMock).getResponseFromDIService(injectHL7.authModel, "injecthl7");
         assertEquals(apiResponse, outStream.toString().trim());
     }
 
@@ -119,7 +119,7 @@ class InjectHL7Test {
         injectHL7.hl7FilePath = hl7FilePath;
         injectHL7.run();
 
-        verify(authUtilMock, never()).getResponseFromDIService(any(AuthModel.class));
+        verify(authUtilMock, never()).getResponseFromDIService(any(AuthModel.class), eq("injecthl7"));
         assertEquals(expectedOutput, errStream.toString().trim());
     }
 
@@ -134,7 +134,7 @@ class InjectHL7Test {
         injectHL7.hl7FilePath = hl7FilePath;
         injectHL7.run();
 
-        verify(authUtilMock, never()).getResponseFromDIService(any(AuthModel.class));
+        verify(authUtilMock, never()).getResponseFromDIService(any(AuthModel.class), anyString());
         assertEquals(expectedOutput, errStream.toString().trim());
     }
 

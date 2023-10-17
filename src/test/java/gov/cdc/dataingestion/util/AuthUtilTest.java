@@ -75,7 +75,7 @@ class AuthUtilTest {
         when(httpResponseMock.getEntity()).thenReturn(mock(HttpEntity.class));
         when(httpResponseMock.getEntity().getContent()).thenReturn(toInputStream("Dummy_UUID"));
 
-        authUtil.getResponseFromDIService(authModelMock);
+        authUtil.getResponseFromDIService(authModelMock, "status");
     }
 
     @Test
@@ -89,7 +89,7 @@ class AuthUtilTest {
         when(httpResponseMock.getEntity()).thenReturn(mock(HttpEntity.class));
         when(httpResponseMock.getEntity().getContent()).thenReturn(toInputStream("Dummy_UUID"));
 
-        authUtil.getResponseFromDIService(authModelMock);
+        authUtil.getResponseFromDIService(authModelMock, "injecthl7");
     }
 
     @Test
@@ -99,7 +99,7 @@ class AuthUtilTest {
 
         when(httpClientMock.execute(eq(httpPostMock))).thenThrow(new IOException("Connection refused."));
 
-        String actualResponse = authUtil.getResponseFromDIService(authModelMock);
+        String actualResponse = authUtil.getResponseFromDIService(authModelMock, "status");
         assertEquals("Something went wrong on the server side. Please check the logs.", actualResponse);
     }
 

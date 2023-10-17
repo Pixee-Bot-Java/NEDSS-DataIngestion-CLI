@@ -54,12 +54,12 @@ class RegisterUserTest {
         registerUser.adminPassword = "adminPassword".toCharArray();
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("CREATED");
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("register"))).thenReturn("CREATED");
 
         registerUser.run();
 
         ArgumentCaptor<AuthModel> authModelCaptor = ArgumentCaptor.forClass(AuthModel.class);
-        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture());
+        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture(), eq("register"));
 
         String expectedOutput = "User onboarded successfully.";
         assertEquals("adminUser", authModelCaptor.getValue().getAdminUser());
@@ -75,12 +75,12 @@ class RegisterUserTest {
         registerUser.adminPassword = "adminPassword".toCharArray();
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("NOT_ACCEPTABLE");
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("register"))).thenReturn("NOT_ACCEPTABLE");
 
         registerUser.run();
 
         ArgumentCaptor<AuthModel> authModelCaptor = ArgumentCaptor.forClass(AuthModel.class);
-        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture());
+        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture(), eq("register"));
 
         String expectedOutput = "Username already exists. Please choose a unique client username.";
         assertEquals("adminUser", authModelCaptor.getValue().getAdminUser());
@@ -96,12 +96,12 @@ class RegisterUserTest {
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn("Unauthorized. Admin username/password is incorrect.");
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("register"))).thenReturn("Unauthorized. Admin username/password is incorrect.");
 
         registerUser.run();
 
         ArgumentCaptor<AuthModel> authModelCaptor = ArgumentCaptor.forClass(AuthModel.class);
-        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture());
+        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture(), eq("register"));
 
         String expectedOutput = "Unauthorized. Admin username/password is incorrect.";
         assertEquals("notAdminUser", authModelCaptor.getValue().getAdminUser());
@@ -117,12 +117,12 @@ class RegisterUserTest {
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenReturn(null);
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("register"))).thenReturn(null);
 
         registerUser.run();
 
         ArgumentCaptor<AuthModel> authModelCaptor = ArgumentCaptor.forClass(AuthModel.class);
-        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture());
+        verify(authUtilMock).getResponseFromDIService(authModelCaptor.capture(), eq("register"));
 
         String expectedOutput = "Something went wrong with API. Response came back as null.";
         assertEquals("notAdminUser", authModelCaptor.getValue().getAdminUser());
@@ -138,7 +138,7 @@ class RegisterUserTest {
         registerUser.adminPassword = "notAdminPassword".toCharArray();
 
         when(propUtilMock.loadPropertiesFile()).thenReturn(mockProperties);
-        when(authUtilMock.getResponseFromDIService(any(AuthModel.class))).thenThrow(new RuntimeException("An exception occurred."));
+        when(authUtilMock.getResponseFromDIService(any(AuthModel.class), eq("register"))).thenThrow(new RuntimeException("An exception occurred."));
 
         assertThrows(RuntimeException.class, registerUser::run);
     }
