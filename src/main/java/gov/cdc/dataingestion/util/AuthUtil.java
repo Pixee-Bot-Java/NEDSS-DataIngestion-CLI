@@ -19,7 +19,13 @@ public class AuthUtil {
 
     public String getResponseFromDIService(AuthModel authModel, String name) {
         try {
-            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(authModel.getAdminUser(), new String(authModel.getAdminPassword()));
+            UsernamePasswordCredentials credentials;
+            if(name.equals("register")) {
+                credentials = new UsernamePasswordCredentials(authModel.getAdminUser(), new String(authModel.getAdminPassword()));
+            }
+            else {
+                credentials = new UsernamePasswordCredentials(authModel.getUsername(), new String(authModel.getPassword()));
+            }
 
             CloseableHttpClient httpsClient = HttpClients.createDefault();
             CloseableHttpResponse response = null;
@@ -36,7 +42,13 @@ public class AuthUtil {
                 Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, postRequest, null);
                 postRequest.addHeader("accept", "*/*");
                 postRequest.addHeader("msgType", "HL7");
-                postRequest.addHeader("Content-Type", "text/plain");
+                postRequest.addHeader("validationActive", "true");
+                if(name.equals("register")) {
+                    postRequest.addHeader("Content-Type", "application/json");
+                }
+                else {
+                    postRequest.addHeader("Content-Type", "text/plain");
+                }
                 postRequest.addHeader(authHeader);
 
                 if(authModel.getRequestBody() != null && !authModel.getRequestBody().isEmpty() && !authModel.getRequestBody().equals("")) {
@@ -52,18 +64,17 @@ public class AuthUtil {
             else {
                 statusCode = response.getStatusLine().getStatusCode();
             }
-
             if (statusCode == 200) {
                 InputStream content = response.getEntity().getContent();
                 String result = convertInputStreamToString(content);
                 httpsClient.close();
                 return result;
-            } else if (response.getStatusLine().getStatusCode() == 401) {
+            } else if (statusCode == 401) {
                 httpsClient.close();
-                return "Unauthorized. Admin username/password is incorrect.";
+                return "Unauthorized. Username/password is incorrect.";
             } else {
                 httpsClient.close();
-                return "Something went wrong on the server side. Please check the logs.";
+                return "Something went wrong on the server side. Please retry after sometime.";
             }
         } catch (Exception e) {
                 return "Exception occurred: " + e.getMessage();
