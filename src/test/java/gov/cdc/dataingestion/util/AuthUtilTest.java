@@ -4,6 +4,7 @@ import gov.cdc.dataingestion.model.AuthModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.AfterEach;
@@ -46,7 +47,6 @@ class AuthUtilTest {
     private AuthModel authModelMock;
     private PropUtil propUtilMock;
     private String serviceEndpoint;
-
 
     @BeforeEach
     void setUp() {
@@ -91,7 +91,6 @@ class AuthUtilTest {
 
         authUtil.getResponseFromDIService(authModelMock, "injecthl7");
     }
-
     private InputStream toInputStream(String value) {
         return new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
     }

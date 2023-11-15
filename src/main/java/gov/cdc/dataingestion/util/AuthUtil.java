@@ -38,11 +38,15 @@ public class AuthUtil {
                 response = httpsClient.execute(getRequest);
             }
             else {
+
                 HttpPost postRequest = new HttpPost(authModel.getServiceEndpoint());
                 Header authHeader = new BasicScheme(StandardCharsets.UTF_8).authenticate(credentials, postRequest, null);
                 postRequest.addHeader("accept", "*/*");
-                postRequest.addHeader("msgType", "HL7");
-                postRequest.addHeader("validationActive", "true");
+
+                if (name.equals("injecthl7")) {
+                    postRequest.addHeader("msgType", "HL7");
+                    postRequest.addHeader("validationActive", "true");
+                }
                 if(name.equals("register")) {
                     postRequest.addHeader("Content-Type", "application/json");
                 }
@@ -73,8 +77,15 @@ public class AuthUtil {
                 httpsClient.close();
                 return "Unauthorized. Username/password is incorrect.";
             } else {
+                String result;
+                if (name.equals("hl7validation")) {
+                    InputStream content = response.getEntity().getContent();
+                    result = convertInputStreamToString(content);
+                } else {
+                    return "Something went wrong on the server side. Please check the logs.";
+                }
                 httpsClient.close();
-                return "Something went wrong on the server side. Please retry after sometime.";
+                return result;
             }
         } catch (Exception e) {
                 return "Exception occurred: " + e.getMessage();
