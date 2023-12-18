@@ -6,7 +6,6 @@ import gov.cdc.dataingestion.util.PropUtil;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
@@ -27,6 +26,7 @@ public class Hl7Validation implements Runnable{
     PropUtil propUtil = new PropUtil();
 
     @Override
+    @SuppressWarnings("java:S106")
     public void run() {
         if(username != null && password != null && hl7FilePath != null) {
             if(!username.isEmpty() && password.length > 0) {
@@ -37,8 +37,6 @@ public class Hl7Validation implements Runnable{
                     while((line = reader.readLine()) != null) {
                         requestBody.append(line);
                     }
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

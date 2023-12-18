@@ -10,19 +10,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /*
 *
@@ -40,6 +37,8 @@ class AuthUtilTest {
     private HttpPost httpPostMock;
 
     @Mock
+    private HttpGet httpGetMock;
+    @Mock
     private CloseableHttpResponse httpResponseMock;
 
     private AuthUtil authUtil;
@@ -47,10 +46,10 @@ class AuthUtilTest {
     private AuthModel authModelMock;
     private PropUtil propUtilMock;
     private String serviceEndpoint;
-
+    private AutoCloseable closeable;
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        closeable=MockitoAnnotations.openMocks(this);
         authUtil = new AuthUtil();
         authModelMock = new AuthModel();
         propUtilMock = new PropUtil();
@@ -61,7 +60,8 @@ class AuthUtilTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
     @Test
@@ -93,5 +93,49 @@ class AuthUtilTest {
     }
     private InputStream toInputStream(String value) {
         return new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
+    }
+    @Test
+    void testGetResponseForDltMessagesSuccessful() throws Exception {
+        authModelMock.setServiceEndpoint(serviceEndpoint);
+        when(httpClientMock.execute(httpGetMock)).thenReturn(httpResponseMock);
+        when(httpResponseMock.getStatusLine()).thenReturn(mock(StatusLine.class));
+        when(httpResponseMock.getStatusLine().getStatusCode()).thenReturn(200);
+        when(httpResponseMock.getEntity()).thenReturn(mock(HttpEntity.class));
+        when(httpResponseMock.getEntity().getContent()).thenReturn(toInputStream("Dummy_DLTMSG"));
+
+        String response=authUtil.getResponseFromDIService(authModelMock, "dltmessages");
+        assertNotNull(response);
+    }
+    @Test
+    void testGetResponseForRegisterSuccessful() throws Exception {
+        String username="testuser";
+        String password="test123";
+        String jsonRequestBody = "{\"username\": \"" + username + "\", \"password\": \"" + new String(password) + "\"}";
+
+        authModelMock.setRequestBody(jsonRequestBody);
+        authModelMock.setServiceEndpoint(serviceEndpoint);
+
+        when(httpClientMock.execute(httpGetMock)).thenReturn(httpResponseMock);
+        when(httpResponseMock.getStatusLine()).thenReturn(mock(StatusLine.class));
+        when(httpResponseMock.getStatusLine().getStatusCode()).thenReturn(200);
+        when(httpResponseMock.getEntity()).thenReturn(mock(HttpEntity.class));
+        when(httpResponseMock.getEntity().getContent()).thenReturn(toInputStream("Dummy_USER"));
+
+        String response=authUtil.getResponseFromDIService(authModelMock, "register");
+        assertNotNull(response);
+
+    }
+    @Test
+    void testGetResponseForHL7ValidationSuccessful() throws Exception {
+        authModelMock.setRequestBody("Dummy HL7 Input");
+        authModelMock.setServiceEndpoint(serviceEndpoint);
+        when(httpClientMock.execute(httpGetMock)).thenReturn(httpResponseMock);
+        when(httpResponseMock.getStatusLine()).thenReturn(mock(StatusLine.class));
+        when(httpResponseMock.getStatusLine().getStatusCode()).thenReturn(200);
+        when(httpResponseMock.getEntity()).thenReturn(mock(HttpEntity.class));
+        when(httpResponseMock.getEntity().getContent()).thenReturn(toInputStream("Dummy_UUID"));
+
+        String response=authUtil.getResponseFromDIService(authModelMock, "hl7validation");
+        assertNotNull(response);
     }
 }
