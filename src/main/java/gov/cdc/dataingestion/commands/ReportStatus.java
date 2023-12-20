@@ -12,12 +12,6 @@ public class ReportStatus implements Runnable{
     @CommandLine.Option(names = {"--report-id"}, description = "UUID provided by Data Ingestion Service during report ingestion", interactive = true, echo = true, required = true)
     String reportUuid;
 
-    @CommandLine.Option(names = {"--username"}, description = "Username to connect to DI service", interactive = true, echo = true, required = true)
-    String username;
-
-    @CommandLine.Option(names = {"--password"}, description = "Password to connect to DI service", interactive = true, required = true)
-    char[] password;
-
     AuthModel authModel = new AuthModel();
     AuthUtil authUtil = new AuthUtil();
     PropUtil propUtil = new PropUtil();
@@ -25,24 +19,18 @@ public class ReportStatus implements Runnable{
     @Override
     @SuppressWarnings("java:S106")
     public void run() {
-        if(username != null && password != null && reportUuid != null) {
-            if(!username.isEmpty() && password.length > 0) {
+        if(reportUuid != null) {
                 Properties properties = propUtil.loadPropertiesFile();
-                String serviceEndpoint = properties.getProperty("service.reportStatusEndpoint");
+                // Serving data from INT1 environment as the production doesn't have data yet
+                String serviceEndpoint = properties.getProperty("service.int1.reportStatusEndpoint");
 
-                authModel.setUsername(username.trim());
-                authModel.setPassword(password);
                 authModel.setServiceEndpoint(serviceEndpoint + "/" + reportUuid);
 
                 String apiResponse = authUtil.getResponseFromDIService(authModel, "status");
                 System.out.println(apiResponse);
             }
-            else {
-                System.err.println("Username or password is empty.");
-            }
-        }
         else {
-            System.err.println("Username or password or report UUID is null.");
+            System.err.println("Report UUID is null.");
         }
     }
 }
