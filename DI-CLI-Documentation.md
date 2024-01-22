@@ -10,15 +10,15 @@
 
 4. [Command Reference](#command-reference)
 
-   - [token](#token-command)
+    - [token](#token-command)
 
-   - [injecthl7](#injecthl7-command)
+    - [injecthl7](#injecthl7-command)
 
-   - [status](#status-command)
+    - [status](#status-command)
 
-   - [hl7validation](#hl7-validation)
+    - [hl7validation](#hl7-validation)
 
-   - [dltmessages](#dlt-messages)
+    - [dltmessages](#dlt-messages)
 
 5. [Troubleshooting](#troubleshooting)
 
@@ -32,6 +32,10 @@ The DataIngestion CLI is packaged using GraalVM, and no additional dependencies 
 
 1. Download the `NBS-DataIngestion-CLI-*` application (based on the OS that you use) from source installation folder.
 2. Run the below commands directly from where you downloaded the `NBS-DataIngestion-CLI-*` application (based on the OS that you use).
+3. Set up system environment variable
+    - Mac: run `nano ~/.zshrc`, add `export DI_URL=[URL_GOES_HERE]`, exit terminal or `source` it
+    - Windows: press `windows` button and search for `env`, select `environment varibles`, add new system variable where variable name is `DI_URL` and value is `YOUR DI URL`.
+    - Linux: run `nano ~/.bashrc`, add `export DI_URL=[URL_GOES_HERE]`, exit terminal or `source` it
 
 *ONLY FOR MAC USERS:*
 - If you're using the latest Mac with Apple Silicon Chip, please download and use the image named `NBS-DataIngestion-CLI-macos-aarch64`. For other mac users, use the image named `NBS-DataIngestion-CLI-macos`.

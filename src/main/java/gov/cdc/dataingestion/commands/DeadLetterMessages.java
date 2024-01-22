@@ -8,24 +8,21 @@ import org.json.JSONObject;
 import picocli.CommandLine;
 
 import java.util.List;
-import java.util.Properties;
 
 @CommandLine.Command(name = "dltmessages", mixinStandardHelpOptions = true, description = "This functionality to view the messages in the dead letter messages.")
-public class DeadLetterMessages implements Runnable {
+public class DeadLetterMessages  extends PropUtil implements Runnable {
 
     @CommandLine.Option(names = {"--msgsize"}, description = "Number of Messages to display.Default is 10", interactive = true, echo = true, required = false)//NOSONAR
     String msgsize = "10";
 
     AuthModel authModel = new AuthModel();//NOSONAR
     AuthUtil authUtil = new AuthUtil();//NOSONAR
-    PropUtil propUtil = new PropUtil();//NOSONAR
 
     @Override
     @SuppressWarnings("java:S106")
     public void run() {
-        Properties properties = propUtil.loadPropertiesFile();
         // Serving data from INT1 environment as the production doesn't have data yet
-        authModel.setServiceEndpoint(properties.getProperty("service.int1.dltErrorMessages"));
+        authModel.setServiceEndpoint(getProperty("service.env.url") + getProperty("service.env.dltErrorMessages"));
 
         String apiResponse = authUtil.getResponseFromDIService(authModel, "dltmessages");
         displayDLTMessages(apiResponse, msgsize);
