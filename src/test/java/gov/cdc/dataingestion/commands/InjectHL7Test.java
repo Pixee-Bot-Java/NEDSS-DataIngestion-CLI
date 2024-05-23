@@ -39,7 +39,7 @@ class InjectHL7Test {
         injectHL7 = new InjectHL7();
         injectHL7.authUtil = authUtilMock;
         injectHL7.authModel = new AuthModel();
-        when(mockProperties.getProperty("service.reportsEndpoint")).thenReturn("testReportsEndpoint");
+        when(mockProperties.getProperty("service.elrIngestionEndpoint")).thenReturn("testElrIngestionEndpoint");
     }
 
     @AfterEach
@@ -110,6 +110,7 @@ class InjectHL7Test {
 
     }
 
+    @SuppressWarnings("java:S6126")
     private static File getFile(boolean isEmpty) throws IOException {
         File tempHL7File = File.createTempFile("test-hl7-input", ".hl7");
 
