@@ -3,6 +3,7 @@ package gov.cdc.dataingestion.commands;
 import gov.cdc.dataingestion.model.AuthModel;
 import gov.cdc.dataingestion.util.AuthUtil;
 import gov.cdc.dataingestion.util.PropUtil;
+import io.github.pixee.security.BoundedLineReader;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -24,7 +25,7 @@ public class Hl7Validation extends PropUtil implements Runnable{
                 StringBuilder requestBody = new StringBuilder();
                 try(BufferedReader reader = new BufferedReader(new FileReader(hl7FilePath))) {
                     String line;
-                    while((line = reader.readLine()) != null) {
+                    while((line = BoundedLineReader.readLine(reader, 5_000_000)) != null) {
                         requestBody.append(line + "\n");
                     }
                 } catch (IOException e) {
