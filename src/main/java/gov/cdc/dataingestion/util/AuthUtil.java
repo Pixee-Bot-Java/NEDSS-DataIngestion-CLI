@@ -1,6 +1,7 @@
 package gov.cdc.dataingestion.util;
 
 import gov.cdc.dataingestion.model.AuthModel;
+import io.github.pixee.security.BoundedLineReader;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.auth.AuthenticationException;
@@ -129,7 +130,7 @@ public class AuthUtil {
         BufferedReader reader = new BufferedReader(new InputStreamReader(content));
         StringBuilder stringBuilder = new StringBuilder();
         String line;
-        while ((line = reader.readLine()) != null) {
+        while ((line = BoundedLineReader.readLine(reader, 5_000_000)) != null) {
             stringBuilder.append(line);
         }
         return stringBuilder.toString();
